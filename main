@@ -59,3 +59,63 @@ class APIExtension {
 }
 
 Scratch.extensions.register(new APIExtension());
+
+class GeminiAPIExtension {
+  constructor() {
+    this.apiKey = "AIzaSyDVo60_O_B5l_AxZt0GiwxmtBRn7tGKOc4";
+    this.apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.apiKey}`;
+  }
+
+  getInfo() {
+    return {
+      id: "geminiAPIExtension",
+      name: "Gemini API Extension",
+      blocks: [
+        {
+          opcode: "talkToGemini",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "send [MESSAGE] to Gemini",
+          arguments: {
+            MESSAGE: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: "test"
+            }
+          }
+        }
+      ]
+    };
+  }
+
+  async talkToGemini(args) {
+    const message = args.MESSAGE;
+    const payload = {
+      contents: [{ parts: [{ text: message }] }]
+    };
+
+    const headers = {
+      "Content-Type": "application/json"
+    };
+
+    try {
+      const response = await fetch(this.apiUrl, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      return responseData.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini.";
+    } catch (error) {
+      return `Error: ${error.message}`;
+    }
+  }
+}
+
+Scratch.extensions.register(new GeminiAPIExtension());
+
+
+
