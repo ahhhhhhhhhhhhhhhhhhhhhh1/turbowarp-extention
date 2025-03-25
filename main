@@ -1,0 +1,61 @@
+class APIExtension {
+  constructor() {
+    this.baseUrl = "";
+  }
+
+  getInfo() {
+    return {
+      id: "apiExtension",
+      name: "API Extension",
+      blocks: [
+        {
+          opcode: "setBaseUrl",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "set base URL to [URL]",
+          arguments: {
+            URL: { type: Scratch.ArgumentType.STRING, defaultValue: "https://api.example.com" }
+          }
+        },
+        {
+          opcode: "getRequest",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "GET from [ENDPOINT]",
+          arguments: {
+            ENDPOINT: { type: Scratch.ArgumentType.STRING, defaultValue: "/data" }
+          }
+        },
+        {
+          opcode: "postRequest",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "POST to [ENDPOINT] with [DATA]",
+          arguments: {
+            ENDPOINT: { type: Scratch.ArgumentType.STRING, defaultValue: "/submit" },
+            DATA: { type: Scratch.ArgumentType.STRING, defaultValue: "{\"key\": \"value\"}" }
+          }
+        }
+      ]
+    };
+  }
+
+  setBaseUrl(args) {
+    this.baseUrl = args.URL;
+  }
+
+  getRequest(args) {
+    return fetch(`${this.baseUrl}${args.ENDPOINT}`)
+      .then(response => response.text())
+      .catch(error => `Error: ${error}`);
+  }
+
+  postRequest(args) {
+    return fetch(`${this.baseUrl}${args.ENDPOINT}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: args.DATA
+    })
+      .then(response => response.text())
+      .catch(error => `Error: ${error}`);
+  }
+}
+
+Scratch.extensions.register(new APIExtension());
